@@ -141,15 +141,21 @@ func RenewManagedCertificates(allowPrompts bool) (err error) {
 					continue
 				}
 
-				// the certificate in storage has not been renewed yet, so we will do it
-				// NOTE 1: This is not correct 100% of the time, if multiple Caddy instances
-				// happen to run their maintenance checks at approximately the same times;
-				// both might start renewal at about the same time and do two renewals and one
-				// will overwrite the other. Hence TLS storage plugins. This is sort of a TODO.
-				// NOTE 2: It is super-important to note that the TLS-SNI challenge requires
-				// a write lock on the cache in order to complete its challenge, so it is extra
-				// vital that this renew operation does not happen inside our read lock!
-				renewQueue = append(renewQueue, cert)
+				// We only want to renew certificates for CNAMEs which are setup correctly
+				if !cert.configs[0].OnDemand {
+					// the certificate in storage has not been renewed yet, so we will do it
+					// NOTE 1: This is not correct 100% of the time, if multiple Caddy instances
+					// happen to run their maintenance checks at approximately the same times;
+					// both might start renewal at about the same time and do two renewals and one
+					// will overwrite the other. Hence TLS storage plugins. This is sort of a TODO.
+					// NOTE 2: It is super-important to note that the TLS-SNI challenge requires
+					// a write lock on the cache in order to complete its challenge, so it is extra
+					// vital that this renew operation does not happen inside our read lock!
+					renewQueue = append(renewQueue, cert)
+				} else {
+					// This certificate is no longer valid. Delete it so we renew it if we get another request.
+					deleteQueue = append(deleteQueue, cert)
+				}
 			}
 		}
 		certCache.RUnlock()

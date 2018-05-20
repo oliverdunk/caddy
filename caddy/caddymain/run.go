@@ -37,6 +37,7 @@ import (
 
 	_ "github.com/mholt/caddy/caddyhttp" // plug in the HTTP server type
 	// This is where other plugins get plugged in (imported)
+	_ "github.com/oliverdunk/caddydb"
 )
 
 func init() {
@@ -437,4 +438,4 @@ var (
 	gitFilesModified string // git diff-index --name-only HEAD
 )
 
-const enableTelemetry = true
+const enableTelemetry = false

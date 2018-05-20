@@ -26,6 +26,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/mholt/caddy"
+
 	"github.com/mholt/caddy/telemetry"
 )
 
@@ -311,12 +313,6 @@ func (cfg *Config) checkURLForObtainingNewCerts(name string) error {
 // now according the maximum count defined in the configuration. If a non-nil
 // error is returned, do not issue a new certificate for name.
 func (cfg *Config) checkLimitsForObtainingNewCerts(name string) error {
-	// User can set hard limit for number of certs for the process to issue
-	if cfg.OnDemandState.MaxObtain > 0 &&
-		atomic.LoadInt32(&cfg.OnDemandState.ObtainedCount) >= cfg.OnDemandState.MaxObtain {
-		return fmt.Errorf("%s: maximum certificates issued (%d)", name, cfg.OnDemandState.MaxObtain)
-	}
-
 	// Make sure name hasn't failed a challenge recently
 	failedIssuanceMu.RLock()
 	when, ok := failedIssuance[name]
@@ -330,7 +326,7 @@ func (cfg *Config) checkLimitsForObtainingNewCerts(name string) error {
 	lastIssueTimeMu.Lock()
 	since := time.Since(lastIssueTime)
 	lastIssueTimeMu.Unlock()
-	if atomic.LoadInt32(&cfg.OnDemandState.ObtainedCount) >= 10 && since < 10*time.Minute {
+	if atomic.LoadInt32(&cfg.OnDemandState.ObtainedCount) >= 10 && since < 1*time.Minute {
 		return fmt.Errorf("%s: throttled; last certificate was obtained %v ago", name, since)
 	}
 
@@ -385,6 +381,8 @@ func (cfg *Config) obtainOnDemandCertificate(name string) (Certificate, error) {
 			failedIssuanceMu.Unlock()
 		}(name)
 		failedIssuanceMu.Unlock()
+
+		caddy.EmitEvent(caddy.OnDemandCertFailureEvent, name)
 		return Certificate{}, err
 	}
 
@@ -393,6 +391,7 @@ func (cfg *Config) obtainOnDemandCertificate(name string) (Certificate, error) {
 	lastIssueTimeMu.Lock()
 	lastIssueTime = time.Now()
 	lastIssueTimeMu.Unlock()
+	caddy.EmitEvent(caddy.OnDemandCertObtainedEvent, name)
 
 	// certificate is already on disk; now just start over to load it and serve it
 	return cfg.getCertDuringHandshake(name, true, false)

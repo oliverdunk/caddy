@@ -262,10 +262,12 @@ type EventName string
 
 // Define names for the various events
 const (
-	StartupEvent         EventName = "startup"
-	ShutdownEvent        EventName = "shutdown"
-	CertRenewEvent       EventName = "certrenew"
-	InstanceStartupEvent EventName = "instancestartup"
+	StartupEvent              EventName = "startup"
+	ShutdownEvent             EventName = "shutdown"
+	CertRenewEvent            EventName = "certrenew"
+	InstanceStartupEvent      EventName = "instancestartup"
+	OnDemandCertObtainedEvent EventName = "ondemandcertobtained"
+	OnDemandCertFailureEvent  EventName = "ondemandcertfailure"
 )
 
 // EventHook is a type which holds information about a startup hook plugin.
