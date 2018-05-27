@@ -382,7 +382,11 @@ func (cfg *Config) obtainOnDemandCertificate(name string) (Certificate, error) {
 		}(name)
 		failedIssuanceMu.Unlock()
 
-		caddy.EmitEvent(caddy.OnDemandCertFailureEvent, name)
+		data := caddy.CertFailureData{}
+		data.Name = name
+		data.Reason = err
+
+		caddy.EmitEvent(caddy.OnDemandCertFailureEvent, data)
 		return Certificate{}, err
 	}
 
