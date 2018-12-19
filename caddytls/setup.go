@@ -79,8 +79,8 @@ func setupTLS(c *caddy.Controller) error {
 					CipherSuites:              clientHello.CipherSuites,
 					ExtensionsUnknown:         true, // no extension info... :(
 					CompressionMethodsUnknown: true, // no compression methods... :(
-					Curves:                    clientHello.SupportedCurves,
-					Points:                    clientHello.SupportedPoints,
+					Curves: clientHello.SupportedCurves,
+					Points: clientHello.SupportedPoints,
 					// We also have, but do not yet use: SignatureSchemes, ServerName, and SupportedProtos (ALPN)
 					// because the standard lib parses some extensions, but our MITM detector generally doesn't.
 				}
@@ -108,6 +108,14 @@ func setupTLS(c *caddy.Controller) error {
 
 		case "cached_unmanaged_cert":
 			telemetry.Increment("tls_unmanaged_cert_count")
+
+		case "on_demand_cert_obtained":
+			name := data.(string)
+			caddy.EmitEvent(caddy.OnDemandCertObtainedEvent, name)
+
+		case "on_demand_cert_failure":
+			name := data.(string)
+			caddy.EmitEvent(caddy.OnDemandCertObtainedEvent, name)
 		}
 	}
 
