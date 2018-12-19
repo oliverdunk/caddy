@@ -114,8 +114,8 @@ func setupTLS(c *caddy.Controller) error {
 			caddy.EmitEvent(caddy.OnDemandCertObtainedEvent, name)
 
 		case "on_demand_cert_failure":
-			name := data.(string)
-			caddy.EmitEvent(caddy.OnDemandCertObtainedEvent, name)
+			data := data.(certmagic.CertFailureData)
+			caddy.EmitEvent(caddy.OnDemandCertObtainedEvent, data)
 		}
 	}
 

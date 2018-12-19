@@ -284,12 +284,6 @@ const (
 	OnDemandCertFailureEvent            = "ondemandcertfailure"
 )
 
-// Interface containing data about a failed on demand certificate
-type CertFailureData struct {
-	Name   string
-	Reason error
-}
-
 // EventHook is a type which holds information about a startup hook plugin.
 type EventHook func(eventType EventName, eventInfo interface{}) error
 

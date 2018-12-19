@@ -27,6 +27,12 @@ import (
 	"github.com/xenolf/lego/challenge/tlsalpn01"
 )
 
+// Interface containing data about a failed on demand certificate
+type CertFailureData struct {
+	Name   string
+	Reason error
+}
+
 // GetCertificate gets a certificate to satisfy clientHello. In getting
 // the certificate, it abides the rules and settings defined in the
 // Config that matches clientHello.ServerName. It first checks the in-
@@ -269,6 +275,9 @@ func (cfg *Config) obtainOnDemandCertificate(name string) (Certificate, error) {
 		}(name)
 		failedIssuanceMu.Unlock()
 		if cfg.OnEvent != nil {
+			data := CertFailureData{}
+			data.Name = name
+			data.Reason = err
 			cfg.OnEvent("on_demand_cert_failure", name)
 		}
 		return Certificate{}, err
