@@ -112,7 +112,7 @@ func (certCache *Cache) RenewManagedCertificates(interactive bool) error {
 			// NOTE: It is super-important to note that the TLS-ALPN challenge requires
 			// a write lock on the cache in order to complete its challenge, so it is extra
 			// vital that this renew operation does not happen inside our read lock!
-			renewQueue = append(renewQueue, cert)
+			deleteQueue = append(deleteQueue, cert)
 		}
 	}
 	certCache.mu.RUnlock()
