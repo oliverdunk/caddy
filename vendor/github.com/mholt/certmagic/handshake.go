@@ -178,7 +178,7 @@ func (cfg *Config) getCertDuringHandshake(name string, loadIfNecessary, obtainIf
 		loadedCert, err := cfg.CacheManagedCertificate(name)
 		if err == nil {
 			// Check cert expiration
-			timeLeft := cert.NotAfter.Sub(time.Now().UTC())
+			timeLeft := loadedCert.NotAfter.Sub(time.Now().UTC())
 			if timeLeft > cfg.RenewDurationBefore {
 				loadedCert, err = cfg.handshakeMaintenance(name, loadedCert)
 				if err != nil {

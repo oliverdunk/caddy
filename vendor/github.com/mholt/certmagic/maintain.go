@@ -15,6 +15,7 @@
 package certmagic
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -108,10 +109,9 @@ func (certCache *Cache) RenewManagedCertificates(interactive bool) error {
 				continue
 			}
 
-			// the certificate in storage has not been renewed yet, so we will do it
-			// NOTE: It is super-important to note that the TLS-ALPN challenge requires
-			// a write lock on the cache in order to complete its challenge, so it is extra
-			// vital that this renew operation does not happen inside our read lock!
+			// we're caching a certificate that is getting old
+			// delete it so we can obtain a new one
+			fmt.Printf("[INFO] Removing old %s certificate from cache\n", cert.Names[0])
 			deleteQueue = append(deleteQueue, cert)
 		}
 	}
@@ -293,7 +293,7 @@ func (certCache *Cache) deleteOldStapleFiles() {
 
 const (
 	// DefaultRenewInterval is how often to check certificates for renewal.
-	DefaultRenewInterval = 12 * time.Hour
+	DefaultRenewInterval = 30 * time.Second
 
 	// DefaultRenewDurationBefore is how long before expiration to renew certificates.
 	DefaultRenewDurationBefore = (24 * time.Hour) * 30

@@ -277,12 +277,6 @@ func (cfg *Config) ObtainCert(name string, interactive bool) error {
 		return nil
 	}
 
-	// we expect this to be a new site; if the
-	// cert already exists, then no-op
-	if cfg.certCache.storage.Exists(StorageKeys.SiteCert(cfg.CA, name)) {
-		return nil
-	}
-
 	client, err := cfg.newACMEClient(interactive)
 	if err != nil {
 		return err
