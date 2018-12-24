@@ -293,7 +293,7 @@ func (certCache *Cache) deleteOldStapleFiles() {
 
 const (
 	// DefaultRenewInterval is how often to check certificates for renewal.
-	DefaultRenewInterval = 30 * time.Second
+	DefaultRenewInterval = 1 * time.Hour
 
 	// DefaultRenewDurationBefore is how long before expiration to renew certificates.
 	DefaultRenewDurationBefore = (24 * time.Hour) * 30
